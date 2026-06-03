@@ -101,6 +101,35 @@ BASE_PATH=/my-other-folder/ npm run build
 
 The build, basename, and 404.html all pick up the new path automatically.
 
+## Troubleshooting
+
+### "Menus navigate to `…/privacy` instead of `…/land-area-calculator/privacy`"
+
+This means the React Router `<BrowserRouter basename>` ended up empty.
+It happens when the build is older than the `base` config in
+`vite.config.js`. Fix:
+
+```bash
+cd website
+rm -rf dist node_modules/.vite
+npm run build
+```
+
+The `postbuild` hook will print `postbuild: asset paths OK` if the
+base is correct, or `VERIFICATION FAILED` with the bad paths if not.
+
+### "Network tab shows 404s for `/assets/index-*.js` and `/assets/index-*.css`"
+
+Same root cause — the bundle was built without the `/land-area-calculator/`
+prefix. Rebuild as above.
+
+### "Direct visit to `/land-area-calculator/privacy` shows a 404"
+
+The `postbuild` step should have copied `dist/index.html` to `dist/404.html`
+(it's the standard GitHub Pages SPA fallback). Make sure you actually
+deployed the contents of `dist/`, not the project root, and that
+`404.html` is in there.
+
 ## Project structure
 
 ```

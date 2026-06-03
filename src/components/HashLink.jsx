@@ -4,10 +4,16 @@ import { useNavigate, useLocation } from 'react-router-dom'
  * A link that navigates to `to` and then scrolls to the element with id `hash`.
  *
  * Why we need this on GitHub Pages:
- *   <Link to="/#features">  →  /land-area-calculator/#features
- *   If the user is already on the target route we just smooth-scroll.
- *   If they're on a different route (e.g. /privacy) we navigate first
- *   and then scroll once the new page has rendered.
+ *   - Plain `<a href="#features">` works on the homepage, but if the user is
+ *     on `/privacy` it would try to scroll on the privacy page (no such
+ *     element) instead of going back to home and scrolling.
+ *   - `<Link to="/#features">` navigates the React Router route but the
+ *     browser-side hash for in-page scroll needs an explicit `replaceState`
+ *     because the React Router location model and the URL's `#fragment` are
+ *     separate things.
+ *
+ * The basename is read from the same Vite-injected value that
+ * `<BrowserRouter>` uses so the two can never disagree.
  */
 export default function HashLink({
   to = '/',
@@ -19,6 +25,9 @@ export default function HashLink({
 }) {
   const navigate = useNavigate()
   const location = useLocation()
+
+  const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '/')
+  const href = `${base}#${hash}`
 
   const handleClick = (e) => {
     e.preventDefault()
@@ -43,12 +52,7 @@ export default function HashLink({
   }
 
   return (
-    <a
-      href={to === '/' ? `#${hash}` : `${to}#${hash}`}
-      onClick={handleClick}
-      className={className}
-      {...rest}
-    >
+    <a href={href} onClick={handleClick} className={className} {...rest}>
       {children}
     </a>
   )
