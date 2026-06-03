@@ -1,17 +1,11 @@
-# website/.github/workflows/deploy.yml
+# .github/workflows/deploy.yml
 #
-# ⚠️  GitHub Actions only picks up workflows from
-# ⚠️  `.github/workflows/` at the **repository root**.
-# ⚠️  This file is kept here as the source of truth and as
-# ⚠️  documentation, but it MUST also exist (or be symlinked) at
-# ⚠️  the repo-root path:  .github/workflows/deploy-website.yml
-# ⚠️
-# A working copy is maintained at:
-#     .github/workflows/deploy-website.yml
-# Edit both — or edit the root copy and copy it here, whichever you prefer.
+# Builds the Vite site at the repo root and deploys dist/ to GitHub Pages.
+# Deploys to:
+#     https://rajendrakumaryadav.github.io/land-area-calculator/
 #
 # ── What this workflow does ─────────────────────────────────────────────
-#  1. Triggers on push to `main` when anything under `website/` changes.
+#  1. Triggers on push to `main`, and on manual dispatch.
 #  2. Installs deps (npm ci if a lockfile exists, else npm install).
 #  3. Runs `npm run build`, which is:
 #        vite build                    → emits dist/
@@ -20,18 +14,17 @@
 #                                        verifies base path, prints
 #                                        diagnostics.
 #  4. Dumps dist/ diagnostics so failures are easy to read in the log.
-#  5. Uploads website/dist as a GitHub Pages artifact.
-#  6. Deploys it to GitHub Pages at:
-#        https://rajendrakumaryadav.github.io/land-area-calculator/
+#  5. Uploads dist/ as a GitHub Pages artifact.
+#  6. Deploys it to GitHub Pages.
+#
+# ── One-time setup ──────────────────────────────────────────────────────
+#  In GitHub → Settings → Pages, set Source to "GitHub Actions".
 
 name: Deploy website
 
 on:
   push:
     branches: [main]
-    paths:
-      - 'website/**'
-      - '.github/workflows/deploy-website.yml'
   workflow_dispatch: # manual trigger from the Actions tab
 
 permissions:
@@ -59,22 +52,22 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        working-directory: website
         run: |
           if [ -f package-lock.json ]; then
             echo "Using 'npm ci' (lockfile present)"
             npm ci
+          elif [ -f bun.lockb ] || [ -f bun.lock ]; then
+            echo "bun.lock present — installing with npm (works fine for Vite)"
+            npm install
           else
-            echo "No package-lock.json — using 'npm install'"
+            echo "No lockfile — using 'npm install'"
             npm install
           fi
 
       - name: Build (vite + postbuild)
-        working-directory: website
         run: npm run build
 
       - name: Inspect dist/ for diagnostics
-        working-directory: website
         run: |
           echo "::: dist/ contents :::"
           ls -la dist/
@@ -92,7 +85,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           # MUST be the *directory* that contains index.html and 404.html.
-          path: website/dist
+          path: dist
 
   deploy:
     name: Deploy
