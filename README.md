@@ -41,7 +41,15 @@ This runs `vite build` and then `node scripts/postbuild.js`, which:
 npm run preview  # serves the built dist/ locally
 ```
 
-## Deploying to GitHub Pages (project site)
+### One-time setup
+
+1. In your GitHub repo → **Settings → Pages**, set the source to
+   **GitHub Actions** (recommended).
+2. The workflow file is at
+   `.github/workflows/deploy-website.yml` (with a documented source
+   copy at `website/.github/workflows/deploy.yml`). It runs on every
+   push to `main` that touches `website/**`, and can also be triggered
+   manually from the **Actions** tab.
 
 This site is configured to live at
 `https://rajendrakumaryadav.github.io/land-area-calculator/`.

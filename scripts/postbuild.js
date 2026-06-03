@@ -4,23 +4,20 @@ import { resolve } from 'node:path'
 // ---------------------------------------------------------------------------
 // Post-build steps for GitHub Pages SPA deploys.
 //
-// 1. Verify the built index.html uses the *expected* subpath. A mismatch
-//    almost always means the build was done with the wrong BASE_PATH
-//    (or with an old vite.config.js) and would silently deploy a
-//    broken site. We fail the build with a clear error in that case.
+// 1. Sanity-check the built index.html. We DO NOT look for a <base> tag
+//    (Vite 5 often omits it when all asset URLs are already absolute).
+//    Instead we look at the first <script src> or <link href> that points
+//    at a root-relative path and confirm it sits under EXPECTED_BASE.
 //
-// 2. Generate dist/404.html using the rafgraph SPA technique. The
-//    `pathSegmentsToKeep` value is derived from the EXPECTED base,
-//    not from the built HTML, so a misconfigured build can't produce
-//    a 404.html that redirects to the wrong URL.
+// 2. Generate dist/404.html using the rafgraph SPA technique.
+//    `pathSegmentsToKeep` is derived from EXPECTED_BASE (the same value
+//    vite.config.js used when building), so the redirect can never go to
+//    the wrong host.
 //
 //    https://github.com/rafgraph/spa-github-pages
-//
-// 3. Sanity check that the built asset paths actually sit under the
-//    configured base, as a second line of defence.
 // ---------------------------------------------------------------------------
 
-// CRITICAL: this must be the subpath the site is served under.
+// CRITICAL: this MUST match the default in vite.config.js.
 //   Project site (e.g. /land-area-calculator/):   '/land-area-calculator/'
 //   User site / custom domain:                    '/'
 //
@@ -31,7 +28,6 @@ import { resolve } from 'node:path'
 const rawEnvBase = process.env.BASE_PATH
 const EXPECTED_BASE =
   rawEnvBase && rawEnvBase !== '/' ? rawEnvBase : '/land-area-calculator/'
-const EXPECTED_BASE_NOSLASH = EXPECTED_BASE.replace(/\/$/, '')
 
 const distDir = resolve(process.cwd(), 'dist')
 const indexPath = resolve(distDir, 'index.html')
@@ -45,32 +41,39 @@ if (!existsSync(indexPath)) {
 const html = readFileSync(indexPath, 'utf-8')
 
 // ---------------------------------------------------------------------------
-// 1. Verify the built base href matches the expected base.
+// 1. Sanity-check the first root-relative asset path.
 // ---------------------------------------------------------------------------
-const baseMatch = html.match(/<base\s+href="([^"]+)"\s*\/?>/i)
-const builtBase = baseMatch ? baseMatch[1] : '/'
-const builtBaseNoslash = builtBase.replace(/\/$/, '')
+const rootRelativeRe = /(?:src|href)="(\/[^"]+)"/g
+let firstAsset = null
+let m
+while ((m = rootRelativeRe.exec(html)) !== null) {
+  // Skip the favicon if it's under the base (it's expected to be)
+  // and skip anything that's actually a hash link.
+  if (m[1] === '/' || m[1].startsWith('//')) continue
+  firstAsset = m[1]
+  break
+}
 
 console.log(`postbuild:`)
 console.log(`  expected base : ${EXPECTED_BASE}`)
-console.log(`  built base    : ${builtBase}`)
+console.log(`  first asset   : ${firstAsset ?? '(none found)'}`)
 
-if (builtBaseNoslash !== EXPECTED_BASE_NOSLASH) {
+if (firstAsset && !firstAsset.startsWith(EXPECTED_BASE)) {
   console.error(
-    `\n  ✗ BASE MISMATCH\n\n` +
-      `    The site is configured to deploy under  ${EXPECTED_BASE}\n` +
-      `    but vite was built with base           =  ${builtBase}\n\n` +
-      `    A misconfigured build would 404 on /assets/* and the SPA\n` +
-      `    fallback 404.html would redirect to the wrong host.\n\n` +
+    `\n  ✗ ASSET PATH MISMATCH\n\n` +
+      `    First root-relative asset in dist/index.html:\n` +
+      `      ${firstAsset}\n\n` +
+      `    Expected it to start with:\n` +
+      `      ${EXPECTED_BASE}\n\n` +
+      `    This means vite.config.js built with a different base than\n` +
+      `    expected. The 404.html redirect would point at the wrong host.\n\n` +
       `    Most common cause: process.env.BASE_PATH is set in your\n` +
-      `    shell, .env file, CI, or package.json scripts to "/".\n` +
-      `    Vite picked it up, vite.config.js logged the override,\n` +
-      `    but you probably never intended it.\n\n` +
+      `    shell, .env file, CI, or package.json scripts to "/".\n\n` +
       `    Quick checks:\n` +
-      `      echo "$BASE_PATH"                 # should be empty\n` +
-      `      env | grep -i base                # any leftover vars?\n` +
-      `      cat .env 2>/dev/null              # any BASE_PATH= line?\n` +
-      `      grep -rn BASE_PATH package.json   # any in scripts?\n\n` +
+      `      echo "$BASE_PATH"                  # should be empty\n` +
+      `      env | grep -i base                 # any leftover vars?\n` +
+      `      ls .env* 2>/dev/null               # any BASE_PATH= line?\n` +
+      `      grep -n BASE_PATH package.json     # any in scripts?\n\n` +
       `    Fix — unset it and rebuild:\n` +
       `      unset BASE_PATH\n` +
       `      rm -rf dist node_modules/.vite\n` +
@@ -83,10 +86,13 @@ if (builtBaseNoslash !== EXPECTED_BASE_NOSLASH) {
 
 // ---------------------------------------------------------------------------
 // 2. Generate dist/404.html with the rafgraph SPA redirect.
-//    pathSegmentsToKeep is derived from the *expected* base, not the
-//    built one, so the redirect can never go to the wrong place.
+//    pathSegmentsToKeep is derived from EXPECTED_BASE, not the built HTML,
+//    so a misconfigured build can't produce a 404.html that points at the
+//    wrong host.
 // ---------------------------------------------------------------------------
-const pathSegmentsToKeep = EXPECTED_BASE_NOSLASH.split('/').filter(Boolean).length
+const pathSegmentsToKeep = EXPECTED_BASE.replace(/\/$/, '')
+  .split('/')
+  .filter(Boolean).length
 
 const notFoundHtml = `<!DOCTYPE html>
 <html lang="en">
@@ -117,26 +123,3 @@ const notFoundHtml = `<!DOCTYPE html>
 
 writeFileSync(notFoundPath, notFoundHtml)
 console.log(`  ✓ wrote 404.html  (pathSegmentsToKeep=${pathSegmentsToKeep})`)
-
-// ---------------------------------------------------------------------------
-// 3. Asset paths should sit under the configured base.
-// ---------------------------------------------------------------------------
-const scriptMatch = html.match(/<script[^>]+src="([^"]+)"/)
-const linkMatch = html.match(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"/)
-const assetPaths = [scriptMatch?.[1], linkMatch?.[1]].filter(Boolean)
-
-if (assetPaths.length === 0) {
-  console.warn('  ⚠ no <script>/<link rel=stylesheet> found, skipping asset check')
-} else {
-  const bad = assetPaths.filter(
-    (p) => !p.startsWith(builtBase) && !p.startsWith('http'),
-  )
-  if (bad.length > 0) {
-    console.error(
-      `  ✗ asset path mismatch:\n    ${bad.join('\n    ')}\n` +
-        `    don't sit under  ${builtBase}`,
-    )
-    process.exit(1)
-  }
-  console.log(`  ✓ asset paths OK (${assetPaths.length} checked)`)
-}
