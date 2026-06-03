@@ -1,5 +1,6 @@
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { APP } from '../data/content.js'
+import HashLink from './HashLink.jsx'
 
 const linkClass = ({ isActive }) =>
   [
@@ -32,12 +33,12 @@ export default function Navbar() {
           <NavLink to="/" end className={linkClass}>
             Home
           </NavLink>
-          <NavLink to="/#features" className={linkClass}>
+          <HashLink hash="features" className={linkClass}>
             Features
-          </NavLink>
-          <NavLink to="/#units" className={linkClass}>
+          </HashLink>
+          <HashLink hash="units" className={linkClass}>
             Units
-          </NavLink>
+          </HashLink>
           <NavLink to="/privacy" className={linkClass}>
             Privacy
           </NavLink>
@@ -90,13 +91,22 @@ export default function Navbar() {
           <Link to="/" className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
             Home
           </Link>
-          <Link to="/#features" className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
+          <HashLink
+            hash="features"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
+          >
             Features
-          </Link>
-          <Link to="/#units" className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
+          </HashLink>
+          <HashLink
+            hash="units"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
+          >
             Units
-          </Link>
-          <Link to="/privacy" className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
+          </HashLink>
+          <Link
+            to="/privacy"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
+          >
             Privacy
           </Link>
           <a
