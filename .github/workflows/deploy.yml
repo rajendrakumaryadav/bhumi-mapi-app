@@ -2,7 +2,7 @@
 #
 # Builds the Vite site at the repo root and deploys dist/ to GitHub Pages.
 # Deploys to:
-#     https://rajendrakumaryadav.github.io/land-area-calculator/
+#     https://rajendrakumaryadav.github.io/bhumi-mapi-app/
 #
 # ── What this workflow does ─────────────────────────────────────────────
 #  1. Triggers on push to `main`, and on manual dispatch.

@@ -7,7 +7,7 @@ import './index.css'
 // ---------------------------------------------------------------------------
 // Basename — must match the subpath the app is served under.
 //
-//   GitHub Pages project site : '/land-area-calculator'
+//   GitHub Pages project site : '/bhumi-mapi-app'
 //   GitHub Pages user/site root: '/'
 //   Custom domain             : '/'
 //   `npm run dev` locally     : '/'  (Vite serves at root)
@@ -17,13 +17,13 @@ import './index.css'
 // hardcoded production value. The hardcoded fallback exists so that a
 // stale or misconfigured build still deploys to the right URL on
 // GitHub Pages instead of generating routes like
-// `https://…/privacy` (missing the `/land-area-calculator/` prefix).
+// `https://…/privacy` (missing the `/bhumi-mapi-app/` prefix).
 // ---------------------------------------------------------------------------
 function resolveBasename() {
   const fromVite = (import.meta.env.BASE_URL || '').replace(/\/$/, '')
   if (fromVite && fromVite !== '/') return fromVite
   // Hardcoded production fallback for the known GitHub Pages subpath.
-  if (import.meta.env.PROD) return '/land-area-calculator'
+  if (import.meta.env.PROD) return '/bhumi-mapi-app'
   return '/'
 }
 

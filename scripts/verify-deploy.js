@@ -5,7 +5,7 @@
 // A pathSegmentsToKeep of 0 means the redirect will go to the GH Pages
 // user-site root instead of the project subpath, breaking all deep links.
 
-const SITE = process.argv[2] || 'https://rajendrakumaryadav.github.io/land-area-calculator/'
+const SITE = process.argv[2] || 'https://rajendrakumaryadav.github.io/bhumi-mapi-app/'
 
 console.log(`Verifying deploy at ${SITE}\n`)
 

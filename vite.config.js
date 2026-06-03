@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 // ---------------------------------------------------------------------------
 // The site is deployed to:
 //
-//     https://rajendrakumaryadav.github.io/land-area-calculator/
+//     https://rajendrakumaryadav.github.io/bhumi-mapi-app/
 //
 // `base` controls where the built `index.html`, JS and CSS resolve from.
 // If the build is done without this option set, Vite defaults `base` to
@@ -25,7 +25,7 @@ import react from '@vitejs/plugin-react'
 // from a shell/.env/CI override silently flipping the build to root.
 const rawBase = process.env.BASE_PATH
 const BASE_PATH =
-  rawBase && rawBase !== '/' ? rawBase : '/land-area-calculator/'
+  rawBase && rawBase !== '/' ? rawBase : '/bhumi-mapi-app/'
 
 // Print so it's visible in the build log *why* this value was picked.
 if (rawBase && rawBase !== BASE_PATH) {

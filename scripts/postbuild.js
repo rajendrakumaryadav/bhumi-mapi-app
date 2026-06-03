@@ -18,7 +18,7 @@ import { resolve } from 'node:path'
 // ---------------------------------------------------------------------------
 
 // CRITICAL: this MUST match the default in vite.config.js.
-//   Project site (e.g. /land-area-calculator/):   '/land-area-calculator/'
+//   Project site (e.g. /bhumi-mapi-app/):   '/bhumi-mapi-app/'
 //   User site / custom domain:                    '/'
 //
 // Only respect BASE_PATH if it's a non-empty, non-root value. A stray
@@ -27,7 +27,7 @@ import { resolve } from 'node:path'
 // that points at the wrong host.
 const rawEnvBase = process.env.BASE_PATH
 const EXPECTED_BASE =
-  rawEnvBase && rawEnvBase !== '/' ? rawEnvBase : '/land-area-calculator/'
+  rawEnvBase && rawEnvBase !== '/' ? rawEnvBase : '/bhumi-mapi-app/'
 
 const distDir = resolve(process.cwd(), 'dist')
 const indexPath = resolve(distDir, 'index.html')

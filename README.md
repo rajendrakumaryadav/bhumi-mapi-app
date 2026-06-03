@@ -30,7 +30,7 @@ This runs `vite build` and then `node scripts/postbuild.js`, which:
 
 1. Generates `dist/404.html` using the [rafgraph SPA-for-GitHub-Pages
    technique](https://github.com/rafgraph/spa-github-pages) so deep links
-   like `/land-area-calculator/privacy` work on direct visit. The
+   like `/bhumi-mapi-app/privacy` work on direct visit. The
    `pathSegmentsToKeep` value is derived automatically from Vite's
    `<base href>` so it tracks the `BASE_PATH` config.
 2. Verifies that the built asset paths sit under the configured base.
@@ -52,9 +52,9 @@ npm run preview  # serves the built dist/ locally
    manually from the **Actions** tab.
 
 This site is configured to live at
-`https://rajendrakumaryadav.github.io/land-area-calculator/`.
+`https://rajendrakumaryadav.github.io/bhumi-mapi-app/`.
 
-- `vite.config.js` sets `base: '/land-area-calculator/'` so all built asset
+- `vite.config.js` sets `base: '/bhumi-mapi-app/'` so all built asset
   paths (`/assets/index-*.js`, `/assets/index-*.css`, etc.) resolve correctly
   under the subpath. **This is the fix for the "404 on `/*.js` and `/*.css`" issue.**
 - `main.jsx` wraps the app in `<BrowserRouter basename="…">` so the React
@@ -62,7 +62,7 @@ This site is configured to live at
 - `scripts/postbuild.js` creates `dist/404.html` as a copy of `dist/index.html`.
   GitHub Pages serves `404.html` for any unknown path, which lets the React
   Router take over and render the correct page on direct visits to e.g.
-  `…/land-area-calculator/privacy`.
+  `…/bhumi-mapi-app/privacy`.
 - `public/.nojekyll` tells GitHub Pages to skip Jekyll processing, which would
   otherwise ignore files starting with `_` and strip `.nojekyll` itself.
 
@@ -105,7 +105,7 @@ This site is configured to live at
    ```
 
 3. Push. After a minute the site will be live at
-   `https://rajendrakumaryadav.github.io/land-area-calculator/`.
+   `https://rajendrakumaryadav.github.io/bhumi-mapi-app/`.
 
 ### Deploying under a different subpath
 
@@ -119,7 +119,7 @@ The build, basename, and 404.html all pick up the new path automatically.
 
 ## Troubleshooting
 
-### "Menus navigate to `…/privacy` instead of `…/land-area-calculator/privacy`"
+### "Menus navigate to `…/privacy` instead of `…/bhumi-mapi-app/privacy`"
 
 This means the React Router `<BrowserRouter basename>` ended up empty.
 It happens when the build is older than the `base` config in
@@ -136,17 +136,17 @@ base is correct, or `VERIFICATION FAILED` with the bad paths if not.
 
 ### "Network tab shows 404s for `/assets/index-*.js` and `/assets/index-*.css`"
 
-Same root cause — the bundle was built without the `/land-area-calculator/`
+Same root cause — the bundle was built without the `/bhumi-mapi-app/`
 prefix. Rebuild as above.
 
-### "Direct visit to `/land-area-calculator/privacy` shows a 404"
+### "Direct visit to `/bhumi-mapi-app/privacy` shows a 404"
 
 The site uses the [rafgraph SPA-for-GH-Pages](https://github.com/rafgraph/spa-github-pages)
 technique: `dist/404.html` encodes the original path in `?p=/…` and
 redirects to the site root, and a small inline script in `index.html`
 rewrites the URL back to the deep link before React Router boots.
 
-If you end up at `https://…/?p=/land-area-calculator/privacy` (note the
+If you end up at `https://…/?p=/bhumi-mapi-app/privacy` (note the
 `/?p=` — no subpath), the deployed `404.html` has `pathSegmentsToKeep = 0`,
 which makes the redirect go to the GH Pages **user-site root** instead of
 the project subpath. This almost always means a stale build was
@@ -159,7 +159,7 @@ npm run verify-deploy
 Expected output:
 
 ```
-Verifying deploy at https://rajendrakumaryadav.github.io/land-area-calculator/
+Verifying deploy at https://rajendrakumaryadav.github.io/bhumi-mapi-app/
 
   pathSegmentsToKeep in deployed 404.html: 1
   ✓ deployment looks correct (pathSegmentsToKeep=1)
@@ -172,8 +172,8 @@ rm -rf dist node_modules/.vite
 npm run build
 # postbuild should print:
 #   postbuild:
-#     expected base : /land-area-calculator/
-#     built base    : /land-area-calculator/
+#     expected base : /bhumi-mapi-app/
+#     built base    : /bhumi-mapi-app/
 #     ✓ wrote 404.html  (pathSegmentsToKeep=1)
 #     ✓ asset paths OK (2 checked)
 
