@@ -26,8 +26,16 @@ npm run dev      # http://localhost:5173
 npm run build
 ```
 
-This runs `vite build` and then `node scripts/postbuild.js`, which copies
-`dist/index.html` to `dist/404.html` so the SPA fallback works on static hosts.
+This runs `vite build` and then `node scripts/postbuild.js`, which:
+
+1. Generates `dist/404.html` using the [rafgraph SPA-for-GitHub-Pages
+   technique](https://github.com/rafgraph/spa-github-pages) so deep links
+   like `/land-area-calculator/privacy` work on direct visit. The
+   `pathSegmentsToKeep` value is derived automatically from Vite's
+   `<base href>` so it tracks the `BASE_PATH` config.
+2. Verifies that the built asset paths sit under the configured base.
+   If the build is stale (wrong subpath), `postbuild` exits non-zero
+   with a clear error message.
 
 ```bash
 npm run preview  # serves the built dist/ locally
@@ -125,10 +133,20 @@ prefix. Rebuild as above.
 
 ### "Direct visit to `/land-area-calculator/privacy` shows a 404"
 
-The `postbuild` step should have copied `dist/index.html` to `dist/404.html`
-(it's the standard GitHub Pages SPA fallback). Make sure you actually
-deployed the contents of `dist/`, not the project root, and that
-`404.html` is in there.
+The site uses the [rafgraph SPA-for-GH-Pages](https://github.com/rafgraph/spa-github-pages)
+technique: `dist/404.html` encodes the original path in `?p=/…` and
+redirects to the site root, and a small inline script in `index.html`
+rewrites the URL back to the deep link before React Router boots. This
+works for direct visits, browser refresh on deep links, and the GH
+Pages 404 page. Verify the postbuild step ran:
+
+```bash
+ls dist/404.html
+head -3 dist/404.html   # should contain "pathSegmentsToKeep"
+```
+
+If `dist/404.html` is missing or empty, the build didn't finish — re-run
+`npm run build` and redeploy.
 
 ## Project structure
 

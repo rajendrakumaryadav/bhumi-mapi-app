@@ -9,6 +9,20 @@
       content="Bhumi Mapi – A free, offline Android app that converts land area measurements between Metric, Imperial and traditional Uttar Pradesh units (Bigha, Biswa, Gaz)."
     />
     <meta name="theme-color" content="#16a34a" />
+    <script>
+      // Single Page Apps for GitHub Pages — restore deep-link path.
+      // https://github.com/rafgraph/spa-github-pages
+      // When 404.html redirects here with a "?p=/path" query, rewrite
+      // the URL back to the original deep link before the React Router
+      // initialises, so <Route path="/privacy"> actually matches.
+      (function () {
+        var q = window.location.search
+        if (q.indexOf('?p=/') !== 0) return
+        var path = q.slice(4).split('&')[0].replace(/~and~/g, '&')
+        var hash = window.location.hash
+        history.replaceState(null, null, path + hash)
+      })()
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
