@@ -136,17 +136,42 @@ prefix. Rebuild as above.
 The site uses the [rafgraph SPA-for-GH-Pages](https://github.com/rafgraph/spa-github-pages)
 technique: `dist/404.html` encodes the original path in `?p=/…` and
 redirects to the site root, and a small inline script in `index.html`
-rewrites the URL back to the deep link before React Router boots. This
-works for direct visits, browser refresh on deep links, and the GH
-Pages 404 page. Verify the postbuild step ran:
+rewrites the URL back to the deep link before React Router boots.
+
+If you end up at `https://…/?p=/land-area-calculator/privacy` (note the
+`/?p=` — no subpath), the deployed `404.html` has `pathSegmentsToKeep = 0`,
+which makes the redirect go to the GH Pages **user-site root** instead of
+the project subpath. This almost always means a stale build was
+deployed. Verify with:
 
 ```bash
-ls dist/404.html
-head -3 dist/404.html   # should contain "pathSegmentsToKeep"
+npm run verify-deploy
 ```
 
-If `dist/404.html` is missing or empty, the build didn't finish — re-run
-`npm run build` and redeploy.
+Expected output:
+
+```
+Verifying deploy at https://rajendrakumaryadav.github.io/land-area-calculator/
+
+  pathSegmentsToKeep in deployed 404.html: 1
+  ✓ deployment looks correct (pathSegmentsToKeep=1)
+```
+
+If it prints `pathSegmentsToKeep=0` instead, rebuild and redeploy:
+
+```bash
+rm -rf dist node_modules/.vite
+npm run build
+# postbuild should print:
+#   postbuild:
+#     expected base : /land-area-calculator/
+#     built base    : /land-area-calculator/
+#     ✓ wrote 404.html  (pathSegmentsToKeep=1)
+#     ✓ asset paths OK (2 checked)
+
+# then redeploy the contents of dist/  (and ensure 404.html is included)
+npm run verify-deploy
+```
 
 ## Project structure
 

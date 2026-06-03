@@ -19,7 +19,25 @@ import react from '@vitejs/plugin-react'
 //
 //     BASE_PATH=/ npm run build
 // ---------------------------------------------------------------------------
-const BASE_PATH = process.env.BASE_PATH || '/land-area-calculator/'
+
+// `process.env.BASE_PATH` is *only* respected if it's a non-empty string
+// other than "/". This stops a stray `BASE_PATH=` (empty) or `BASE_PATH=/`
+// from a shell/.env/CI override silently flipping the build to root.
+const rawBase = process.env.BASE_PATH
+const BASE_PATH =
+  rawBase && rawBase !== '/' ? rawBase : '/land-area-calculator/'
+
+// Print so it's visible in the build log *why* this value was picked.
+if (rawBase && rawBase !== BASE_PATH) {
+  console.warn(
+    `[vite.config.js] process.env.BASE_PATH=${JSON.stringify(rawBase)} ` +
+      `is being ignored, using ${JSON.stringify(BASE_PATH)} instead. ` +
+      `If you actually want to deploy to a different subpath, update ` +
+      `the default in vite.config.js (and postbuild.js).`,
+  )
+} else {
+  console.log(`[vite.config.js] base = ${JSON.stringify(BASE_PATH)}`)
+}
 
 export default defineConfig({
   base: BASE_PATH,

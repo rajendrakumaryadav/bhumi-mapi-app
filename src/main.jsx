@@ -22,6 +22,7 @@ import './index.css'
 function resolveBasename() {
   const fromVite = (import.meta.env.BASE_URL || '').replace(/\/$/, '')
   if (fromVite && fromVite !== '/') return fromVite
+  // Hardcoded production fallback for the known GitHub Pages subpath.
   if (import.meta.env.PROD) return '/land-area-calculator'
   return '/'
 }
